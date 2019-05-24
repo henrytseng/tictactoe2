@@ -97,9 +97,9 @@ class Game(object):
         for i in range(self.board.width * self.board.height):
             n = self.update(i)
             if n:
-                print("Winner: {}".format(n))
+                # print("Winner: {}".format(n))
                 return True
-        print("Play again")
+        # print("Play again")
         return False
 
     def update(self, i):
@@ -124,4 +124,5 @@ class Game(object):
     def end(self):
         self.saved_state.store(winner=self.winner)
         self.saved_state.reset()
+        self.reset()
 

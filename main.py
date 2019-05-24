@@ -19,15 +19,15 @@ def main(input_x=None, input_o=None):
     player1 = RandomPlayer() if not input_x else InputPlayer()
     player2 = RandomPlayer() if not input_o else InputPlayer()
 
-    print("Starting game")
+    print("Starting")
     game = Game()
     game.set_player_x(player1)
     game.set_player_o(player2)
 
-    for i in range(10000):
-        with benchmark():
+    with benchmark():
+        for i in range(10000):
             game.start()
-            game.reset()
+            game.end()
 
 if __name__ == "__main__":
     parse = argparse.ArgumentParser(description='Play Tic-Tac-Toe')

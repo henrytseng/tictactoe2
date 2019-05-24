@@ -17,3 +17,5 @@ class InputPlayer(object):
             print("Exiting")
             exit()
         return list(map(lambda x:int(x), value.split(',')))
+
+
