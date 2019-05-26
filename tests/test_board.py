@@ -74,3 +74,18 @@ def test_winner():
     board[1, 2] = 'X'
     board[2, 2] = 'X'
     assert board.get_winner() == 'X'
+
+    # Left diagnol
+    board.reset()
+    board[0, 0] = 'X'
+    board[1, 1] = 'X'
+    board[2, 2] = 'X'
+    assert board.get_winner() == 'X'
+
+    # Right diagnol
+    board.reset()
+    board[2, 0] = 'X'
+    board[1, 1] = 'X'
+    board[0, 2] = 'X'
+    assert board.get_winner() == 'X'
+
