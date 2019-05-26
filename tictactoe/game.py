@@ -1,7 +1,30 @@
 import random
 import time
+import math
 
 class Board(object):
+
+    @classmethod
+    def serialize(cls, board, empty="-", row_sep="", col_sep=""):
+        rows = []
+        for j in range(board.height):
+            cols = []
+            for i in range(board.width):
+                item = board.__getitem__((i, j))
+                if item is None:
+                    item = empty
+                cols.append(item)
+            rows.append(col_sep.join(cols))
+        return row_sep.join(rows)
+
+    @classmethod
+    def deserialize(cls, serialized, empty="-", row_sep="", col_sep=""):
+        dim = int(math.sqrt(len(serialized)))
+        board = Board(dim, dim)
+        for j in range(dim):
+            for i in range(dim):
+                board[i, j] = serialized[j * dim + i]
+        return board
 
     def __init__(self, width=3, height=3):
         self.width = width
@@ -59,23 +82,7 @@ class Board(object):
 
     def debug(self):
         '''Debugging display'''
-        return self.serialize(empty="-", row_sep="\n", col_sep="")
-
-    def serialize(self, empty="-", row_sep="", col_sep=""):
-        rows = []
-        for j in range(self.height):
-            cols = []
-            for i in range(self.width):
-                item = self.__getitem__((i, j))
-                if item is None:
-                    item = empty
-                cols.append(item)
-            rows.append(col_sep.join(cols))
-        return row_sep.join(rows)
-
-    def deserialize(self, state, empty="-", row_sep="", col_sep=""):
-        # TODO implement
-        return
+        return Board.serialize(self, empty="-", row_sep="\n", col_sep="")
 
 
 class Game(object):
