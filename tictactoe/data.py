@@ -14,7 +14,7 @@ class Storage(object):
         self.queue = queue
         self.lock = lock
         self.temp_path = environ['DATA_FOLDER'] if 'DATA_FOLDER' in environ else './data'
-        self.filename = "{}.data".format(hex(random.getrandbits(16)))
+        self.filename = "{}.csv".format(hex(random.getrandbits(16)))
 
     def collect(self):
         try:

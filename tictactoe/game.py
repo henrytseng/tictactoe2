@@ -129,7 +129,7 @@ class Game(object):
         if(self.board.has_empty()):
             move = player.get_move(self.board)
             self.board[move] = marker
-            self.stats.push((marker, move, Board.serialize(self.board)))
+            self.stats.push(tuple(marker) + move + tuple(Board.serialize(self.board)))
         self.winner = self.board.get_winner()
         return self.winner
 
