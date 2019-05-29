@@ -3,10 +3,10 @@ import traceback
 import random
 import logging
 import csv
-from multiprocessing import log_to_stderr
+from multiprocessing import get_logger
 import numpy as np
 
-logger = log_to_stderr()
+logger = get_logger()
 
 class Storage(object):
 
