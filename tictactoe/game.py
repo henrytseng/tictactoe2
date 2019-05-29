@@ -1,6 +1,11 @@
+from os import environ
 import random
 import time
 import math
+import logging
+from .data import Stats
+
+logger = logging.getLogger(__name__)
 
 class Board(object):
 
@@ -45,29 +50,25 @@ class Board(object):
     def get_winner(self):
         # Check rows
         for j in range(self.height):
-            irows = (self.__getitem__((i, j)) for i in range(self.width) if self.__getitem__((i, j)) is not None)
-            irows_set = set(irows)
-            if len(irows_set) == 1:
-                return list(irows_set)[0]
+            irows = [self.__getitem__((i, j)) for i in range(self.width) if self.__getitem__((i, j)) is not None]
+            if len(set(irows)) == 1 and len(irows) == self.width:
+                return irows[0]
         
         # Check columns
         for i in range(self.width):
-            jcols = (self.__getitem__((i, j)) for j in range(self.height) if self.__getitem__((i, j)) is not None)
-            jcols_set = set(jcols)
-            if len(jcols_set) == 1:
-                return list(jcols_set)[0]
+            jcols = [self.__getitem__((i, j)) for j in range(self.height) if self.__getitem__((i, j)) is not None]
+            if len(set(jcols)) == 1 and len(jcols) == self.height:
+                return jcols[0]
 
         # Left diagnol
-        ldiag = (self.__getitem__((i, i)) for i in range(self.width) if self.__getitem__((i, j)) is not None)
-        ldiag_set = set(ldiag)
-        if len(ldiag_set) == 1:
-            return list(ldiag_set)[0]
+        ldiag = [self.__getitem__((i, i)) for i in range(self.width) if self.__getitem__((i, i)) is not None]
+        if len(set(ldiag)) == 1 and len(ldiag) == self.width:
+            return ldiag[0]
         
         # Right diagnol
-        rdiag = (self.__getitem__((self.width-1-i, i)) for i in range(self.width) if self.__getitem__((i, j)) is not None)
-        rdiag_set = set(rdiag)
-        if len(rdiag_set) == 1:
-            return list(rdiag_set)[0]
+        rdiag = [self.__getitem__((self.width-1-i, i)) for i in range(self.width) if self.__getitem__((self.width-1-i, i)) is not None]
+        if len(set(rdiag)) == 1 and len(rdiag) == self.width:
+            return rdiag[0]
 
         return None
 
@@ -87,9 +88,11 @@ class Board(object):
 
 class Game(object):
 
-    def __init__(self):
-        # self.saved_state = None
+    def __init__(self, queue):
+        self.debug_level = environ['DEBUG_LEVEL'] if 'DEBUG_LEVEL' in environ else None
         self.board = Board()
+        self.stats = Stats(queue)
+        self.reset()
 
     def set_player_x(self, player):
         self.player_x = player
@@ -99,20 +102,19 @@ class Game(object):
 
     def reset(self):
         self.id = hex(random.getrandbits(16))
-        if self.saved_state is not None:
-            self.saved_state.reset()
         self.winner = None
         self.board.reset()
 
     def start(self):
         self.reset()
-        print("Starting {}".format(self.id))
+        if self.debug_level == 'info':
+            logger.info("Starting {}".format(self.id))
         for i in range(self.board.width * self.board.height):
             self.update(i)
             if self.winner is not None:
-                # print("Winner: {}".format(n))
+                # logger.info("Winner: {}".format(self.winner))
                 return True
-        # print("Play again")
+        # logger.info("Play again")
         return False
 
     def update(self, i):
@@ -127,14 +129,12 @@ class Game(object):
         if(self.board.has_empty()):
             move = player.get_move(self.board)
             self.board[move] = marker
-            if False:
-                pass
-            else:
-                print(self.board.serialize())
-
+            self.stats.push((marker, move, Board.serialize(self.board)))
         self.winner = self.board.get_winner()
         return self.winner
 
     def end(self):
-        print("Complete {}".format(self.id))
+        self.stats.complete((self.id, self.winner))
+        if self.debug_level == 'info':
+            logger.info("Complete {}".format(self.id))
 

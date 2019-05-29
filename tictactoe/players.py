@@ -1,7 +1,16 @@
 from .game import Board
 import random
+import logging
+
+logger = logging.getLogger(__name__)
 
 class RandomPlayer(object):
+
+    def get_move(self, board):
+        return random.choice(board.find_empty())
+
+
+class LearningPlayer(object):
 
     def get_move(self, board):
         return random.choice(board.find_empty())

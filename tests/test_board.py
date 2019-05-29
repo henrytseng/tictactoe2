@@ -80,6 +80,7 @@ def test_winner():
     board[0, 0] = 'X'
     board[1, 1] = 'X'
     board[2, 2] = 'X'
+    print(board.debug())
     assert board.get_winner() == 'X'
 
     # Right diagnol
@@ -88,6 +89,16 @@ def test_winner():
     board[1, 1] = 'X'
     board[0, 2] = 'X'
     assert board.get_winner() == 'X'
+
+def test_not_winner():
+    board = Board()
+
+    # Top column
+    board.reset()
+    board[0, 0] = 'X'
+    board[0, 1] = None
+    board[0, 2] = None
+    assert board.get_winner() != 'X'
 
 def test_serialize():
     board = Board()
@@ -106,3 +117,4 @@ def test_serialize():
     assert board2[1, 1] == 'O'
     assert board2[0, 2] == 'X'
     assert board2[1, 2] == 'O'
+
