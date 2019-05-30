@@ -12,6 +12,14 @@ class RandomPlayer(object):
 
 class LearningPlayer(object):
 
+    def __init__(self, learning_file=None):
+        self.learning_file = learning_file
+        logger.info(self.learning_file)
+
+    def load(self):
+        '''Loads learning data'''
+        pass
+
     def get_move(self, board):
         return random.choice(board.find_empty())
 

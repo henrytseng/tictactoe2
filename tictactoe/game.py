@@ -88,17 +88,11 @@ class Board(object):
 
 class Game(object):
 
-    def __init__(self, queue):
+    def __init__(self, queue=None):
         self.debug_level = environ['DEBUG_LEVEL'] if 'DEBUG_LEVEL' in environ else None
         self.board = Board()
         self.stats = Stats(queue)
         self.reset()
-
-    def set_player_x(self, player):
-        self.player_x = player
-
-    def set_player_o(self, player):
-        self.player_o = player
 
     def reset(self):
         self.id = hex(random.getrandbits(16))
@@ -112,9 +106,9 @@ class Game(object):
         for i in range(self.board.width * self.board.height):
             self.update(i)
             if self.winner is not None:
-                # logger.info("Winner: {}".format(self.winner))
+                # Winner
                 return True
-        # logger.info("Play again")
+        # Play again
         return False
 
     def update(self, i):
@@ -129,12 +123,19 @@ class Game(object):
         if(self.board.has_empty()):
             move = player.get_move(self.board)
             self.board[move] = marker
-            self.stats.push(tuple(marker) + move + tuple(Board.serialize(self.board)))
+            board_headers = [(i, j) for i in range(self.board.width) for j in range(self.board.height)]
+            board_serialized = Board.serialize(self.board)
+            item = {
+                'marker': marker,
+                'move': move
+            }
+            item.update(zip(board_headers, board_serialized))
+            self.stats.push(item)
         self.winner = self.board.get_winner()
         return self.winner
 
     def end(self):
-        self.stats.complete((self.id, self.winner))
+        self.stats.complete({'id': self.id, 'winner': self.winner})
         if self.debug_level == 'info':
             logger.info("Complete {}".format(self.id))
 

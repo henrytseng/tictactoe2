@@ -118,3 +118,4 @@ def test_serialize():
     assert board2[0, 2] == 'X'
     assert board2[1, 2] == 'O'
 
+    
