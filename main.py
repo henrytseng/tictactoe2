@@ -44,8 +44,8 @@ def play(player1=None, player2=None, learning_file=None):
     logger_subprocess.info("Running {}".format(os.getpid()))
     try:
         game = Game(queue)
-        game.player_x = get_player(player1, learning_file)
-        game.player_o = get_player(player2, learning_file)
+        game.set_player_x(get_player(player1, learning_file))
+        game.set_player_o(get_player(player2, learning_file))
         game.start()
         game.end()
     except Exception as e:

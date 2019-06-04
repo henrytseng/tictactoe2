@@ -36,6 +36,14 @@ class Board(object):
         self.height = height
         self.reset()
 
+    def set_player_o(self, player):
+        player.marker = 'O'
+        self.player_o = player
+
+    def set_player_x(self, player):
+        player.marker = 'X'
+        self.player_x = player
+
     def reset(self):
         '''Builds an empty game board'''
         self.places = [None for i in range(self.height * self.width)]
@@ -88,11 +96,14 @@ class Board(object):
 
 class Game(object):
 
-    def __init__(self, queue=None):
+    def __init__(self, queue=None, width=3, height=3):
         self.debug_level = environ['DEBUG_LEVEL'] if 'DEBUG_LEVEL' in environ else None
-        self.board = Board()
-        self.stats = Stats(queue)
+        self.board = Board(width, height)
+        self.stats = Stats(queue, width, height)
         self.reset()
+
+    def get_size(self):
+        return (self.board.width, self.board.height)
 
     def reset(self):
         self.id = hex(random.getrandbits(16))
@@ -122,20 +133,21 @@ class Game(object):
             marker = 'O'
         if(self.board.has_empty()):
             move = player.get_move(self.board)
-            self.board[move] = marker
             board_headers = [(i, j) for i in range(self.board.width) for j in range(self.board.height)]
             board_serialized = Board.serialize(self.board)
             item = {
                 'marker': marker,
-                'move': move
+                'move': move,
+                'board': board_serialized
             }
             item.update(zip(board_headers, board_serialized))
             self.stats.push(item)
+            self.board[move] = marker
         self.winner = self.board.get_winner()
         return self.winner
 
     def end(self):
-        self.stats.complete({'id': self.id, 'winner': self.winner})
+        self.stats.complete({'id': self.id, 'winner': self.winner, 'empty_spaces': len(self.board.find_empty())})
         if self.debug_level == 'info':
             logger.info("Complete {}".format(self.id))
 

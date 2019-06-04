@@ -4,13 +4,19 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class RandomPlayer(object):
+class AbstractPlayer(object):
+
+    def __init__(self):
+        self.marker = None
+
+
+class RandomPlayer(AbstractPlayer):
 
     def get_move(self, board):
         return random.choice(board.find_empty())
 
 
-class LearningPlayer(object):
+class LearningPlayer(AbstractPlayer):
 
     def __init__(self, learning_file=None):
         self.learning_file = learning_file
@@ -24,7 +30,7 @@ class LearningPlayer(object):
         return random.choice(board.find_empty())
 
 
-class InputPlayer(object):
+class InputPlayer(AbstractPlayer):
 
     def get_move(self, board):
         print(board.debug())

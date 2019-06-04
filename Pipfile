@@ -13,6 +13,10 @@ pytest = "*"
 kafka-python = "*"
 jupyter = "*"
 pandas = "*"
+scipy = "*"
+matplotlib = "*"
+ipython = "*"
+scikit-learn = "*"
 
 [requires]
 python_version = "3.7"

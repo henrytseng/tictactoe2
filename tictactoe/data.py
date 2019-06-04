@@ -39,9 +39,6 @@ class Storage(object):
         finally:
             self.lock.release()
 
-    def reset():
-        self.data = []
-
 
 class Stats(object):
 
