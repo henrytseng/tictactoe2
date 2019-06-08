@@ -36,14 +36,6 @@ class Board(object):
         self.height = height
         self.reset()
 
-    def set_player_o(self, player):
-        player.marker = 'O'
-        self.player_o = player
-
-    def set_player_x(self, player):
-        player.marker = 'X'
-        self.player_x = player
-
     def reset(self):
         '''Builds an empty game board'''
         self.places = [None for i in range(self.height * self.width)]
@@ -102,6 +94,14 @@ class Game(object):
         self.stats = Stats(queue, width, height)
         self.reset()
 
+    def set_player_o(self, player):
+        player.marker = 'O'
+        self.player_o = player
+
+    def set_player_x(self, player):
+        player.marker = 'X'
+        self.player_x = player
+
     def get_size(self):
         return (self.board.width, self.board.height)
 
@@ -133,6 +133,7 @@ class Game(object):
             marker = 'O'
         if(self.board.has_empty()):
             move = player.get_move(self.board)
+            self.board[move] = marker
             board_headers = [(i, j) for i in range(self.board.width) for j in range(self.board.height)]
             board_serialized = Board.serialize(self.board)
             item = {
@@ -142,7 +143,6 @@ class Game(object):
             }
             item.update(zip(board_headers, board_serialized))
             self.stats.push(item)
-            self.board[move] = marker
         self.winner = self.board.get_winner()
         return self.winner
 
