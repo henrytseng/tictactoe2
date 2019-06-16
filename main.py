@@ -32,22 +32,26 @@ def init(l, q):
     lock = l
     queue = q
 
-def get_player(player_type, learning_file):
+def get_player(player_type, learning_file=None):
     player_map = {
-        'random': RandomPlayer(),
-        'input': InputPlayer(),
-        'learning': LearningPlayer(learning_file)
+        'random': RandomPlayer,
+        'input': InputPlayer,
+        'learning': LearningPlayer
     }
-    return player_map[player_type]
+    player = player_map[player_type]()
+    if learning_file is not None:
+        player.load(learning_file)
+    return player
 
-def play(player1=None, player2=None, learning_file=None):
+def play(player1=None, player2=None, learning_file=None, num_games=1):
     logger_subprocess.info("Running {}".format(os.getpid()))
     try:
         game = Game(queue)
         game.set_player_x(get_player(player1, learning_file))
         game.set_player_o(get_player(player2, learning_file))
-        game.start()
-        game.end()
+        for i in range(num_games):
+            game.start()
+            game.end()
     except Exception as e:
         logger_subprocess.error(traceback.format_exc())
         raise
@@ -79,14 +83,17 @@ def main(**kwargs):
     player2 = kwargs['input_o']
     learning_file = kwargs['learning_file']
     
+    logging.info("Process pool size: {}".format(kwargs['num_concurrency']))
+    logging.info("Number of games: {}".format(kwargs['num_games']))
+
     with benchmark():
         # Set pool size to number of processors
         pool = Pool(kwargs['num_concurrency'], initializer=init, initargs=(l, q))
-        for i in range(kwargs['num_games']):
-            pool.apply_async(play, args=(player1, player2, learning_file))
+        for i in range(kwargs['num_concurrency']):
+            pool.apply_async(play, args=(player1, player2, learning_file, kwargs['num_games']))
         pool.close()
         pool.join()
-        q.put('complete')
+        q.put(('complete',))
     p.join()
 
 # Entry point
@@ -98,6 +105,7 @@ if __name__ == "__main__":
     parse.add_argument('-c', '--num_concurrency', type=int, default=1, help='Number of games to play concurrently')
     parse.add_argument("-v", "--verbose", default=1, action="count", help="Increase logging verbosity")
     parse.add_argument("-f", "--learning_file", help="Loads learning data from historical games")
+    parse.add_argument("-a", "--active_learning", default=True, action='store_true', help="Actively learn while playing")
 
     args = parse.parse_args()
     main(**vars(args))

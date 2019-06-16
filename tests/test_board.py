@@ -118,4 +118,8 @@ def test_serialize():
     assert board2[0, 2] == 'X'
     assert board2[1, 2] == 'O'
 
-    
+def test_positions():
+    board = Board()
+    board[1, 1] = 'X'
+    board[0, 1] = 'O'
+    assert board.get_positions() == [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]

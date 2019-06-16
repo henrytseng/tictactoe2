@@ -81,6 +81,15 @@ class Board(object):
             raise Exception('Place already taken')
         self.places[n] = value
 
+    def get_positions(self):
+        x_positions = [ 1 if self.__getitem__((i, j)) == 'X' else 0
+                        for j in range(self.height)
+                        for i in range(self.width) ]
+        o_positions = [ 1 if self.__getitem__((i, j)) == 'O' else 0
+                        for j in range(self.height)
+                        for i in range(self.width) ]
+        return x_positions + o_positions
+
     def debug(self):
         '''Debugging display'''
         return Board.serialize(self, empty="-", row_sep="\n", col_sep="")
@@ -96,10 +105,14 @@ class Game(object):
 
     def set_player_o(self, player):
         player.marker = 'O'
+        player.board_size = self.get_size()
+        player.stats = self.stats
         self.player_o = player
 
     def set_player_x(self, player):
         player.marker = 'X'
+        player.board_size = self.get_size()
+        player.stats = self.stats
         self.player_x = player
 
     def get_size(self):
@@ -114,13 +127,18 @@ class Game(object):
         self.reset()
         if self.debug_level == 'info':
             logger.info("Starting {}".format(self.id))
-        for i in range(self.board.width * self.board.height):
-            self.update(i)
-            if self.winner is not None:
-                # Winner
-                return True
-        # Play again
-        return False
+        has_winner = False
+        with self.player_x.train() as data:
+            with self.player_o.train() as data:
+                for i in range(self.board.width * self.board.height):
+                    self.update(i)
+                    data[0].append(self.board.get_positions())
+                    if self.winner is not None:
+                        data[1] = self.winner
+                        has_winner = True
+                        break
+        # Tie
+        return has_winner
 
     def update(self, i):
         if self.winner:
