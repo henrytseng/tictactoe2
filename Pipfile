@@ -4,18 +4,15 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+ipython = "*"
+matplotlib = "*"
 
 [packages]
-torch = "*"
-torchvision = "*"
 numpy = "*"
 pytest = "*"
-kafka-python = "*"
 jupyter = "*"
 pandas = "*"
 scipy = "*"
-matplotlib = "*"
-ipython = "*"
 scikit-learn = "*"
 
 [requires]
