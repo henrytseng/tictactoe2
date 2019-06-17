@@ -52,6 +52,8 @@ def play(player1=None, player2=None, learning_file=None, num_games=1):
         for i in range(num_games):
             game.start()
             game.end()
+        player1.debug()
+        player2.debug()
     except Exception as e:
         logger_subprocess.error(traceback.format_exc())
         raise

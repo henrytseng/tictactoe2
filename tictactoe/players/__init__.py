@@ -25,6 +25,9 @@ class AbstractPlayer(object):
     def get_move(self, board):
         pass
 
+    def debug():
+        pass
+
 
 class RandomPlayer(AbstractPlayer):
 
@@ -435,6 +438,8 @@ class LearningPlayer(AbstractPlayer):
         
         return parameters
 
+    def debug(self):
+        logger.info(self.parameters)
 
 
 
