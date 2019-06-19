@@ -39,21 +39,23 @@ def get_player(player_type, learning_file=None):
         'learning': LearningPlayer
     }
     player = player_map[player_type]()
-    if learning_file is not None:
+    if learning_file is not None and player_type == 'learning':
         player.load(learning_file)
     return player
 
-def play(player1=None, player2=None, learning_file=None, num_games=1):
+def play(player1=None, player2=None, learning_file=False, num_games=1):
     logger_subprocess.info("Running {}".format(os.getpid()))
     try:
+        px = get_player(player1, learning_file)
+        po = get_player(player2, learning_file)
         game = Game(queue)
-        game.set_player_x(get_player(player1, learning_file))
-        game.set_player_o(get_player(player2, learning_file))
+        game.set_player_x(px)
+        game.set_player_o(po)
         for i in range(num_games):
             game.start()
             game.end()
-        player1.debug()
-        player2.debug()
+        px.debug()
+        po.debug()
     except Exception as e:
         logger_subprocess.error(traceback.format_exc())
         raise
@@ -106,8 +108,8 @@ if __name__ == "__main__":
     parse.add_argument('-n', '--num_games', type=int, default=2, help='Number of games to play')
     parse.add_argument('-c', '--num_concurrency', type=int, default=1, help='Number of games to play concurrently')
     parse.add_argument("-v", "--verbose", default=1, action="count", help="Increase logging verbosity")
-    parse.add_argument("-f", "--learning_file", help="Loads learning data from historical games")
     parse.add_argument("-a", "--active_learning", default=True, action='store_true', help="Actively learn while playing")
+    parse.add_argument("-l", "--learning_file", help="Loads learning data from historical games")
 
     args = parse.parse_args()
     main(**vars(args))

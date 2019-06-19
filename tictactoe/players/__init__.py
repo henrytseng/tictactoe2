@@ -1,5 +1,7 @@
+from os import environ
 from contextlib import contextmanager
 import random
+import pickle
 import logging
 import pandas as pd
 import numpy as np
@@ -25,7 +27,7 @@ class AbstractPlayer(object):
     def get_move(self, board):
         pass
 
-    def debug():
+    def debug(self):
         pass
 
 
@@ -51,20 +53,21 @@ class LearningPlayer(AbstractPlayer):
 
     def __init__(self, is_learning_while_playing=True):
         self.is_learning_while_playing = is_learning_while_playing
+        self.temp_path = environ['DATA_FOLDER'] if 'DATA_FOLDER' in environ else './data'
+        self.learning_src = "{}.p".format(hex(random.getrandbits(16)))
         self.parameters = None
         self.train_x = None
         self.train_y = None
         self.round_data = None
 
-    def load(self, learning_src):
-        logger.info("Loading learning file: {}".format(self.learning_file))
-        # Load weights
-        pass
+    def load(self, learning_file):
+        logger.info("Loading learning file: {}".format(learning_file))
+        self.parameters = pickle.load(open(learning_file, 'rb'))
 
-    def save(self, learning_src):
-        logger.info("Saving learning file: {}".format(self.learning_file))
-        # Store weights
-        pass
+    def save(self):
+        file_path = "{temp_path}/{filename}".format(temp_path=self.temp_path, filename=self.learning_src)
+        logger.info("Saving learning file: {}".format(file_path))
+        pickle.dump(self.parameters, open(file_path, 'wb+'))
 
     @contextmanager
     def train(self):
@@ -440,6 +443,7 @@ class LearningPlayer(AbstractPlayer):
 
     def debug(self):
         logger.info(self.parameters)
+        self.save()
 
 
 
