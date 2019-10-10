@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-pipenv run python main.py
+pipenv run python main.py $@
