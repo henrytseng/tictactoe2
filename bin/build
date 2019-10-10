@@ -1,3 +1,4 @@
 #!/bin/bash
 
+pipenv install
 pipenv run python -m compileall .
