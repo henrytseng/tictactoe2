@@ -90,15 +90,19 @@ def main(**kwargs):
     logging.info("Process pool size: {}".format(kwargs['num_concurrency']))
     logging.info("Number of games: {}".format(kwargs['num_games']))
 
-    with benchmark():
-        # Set pool size to number of processors
-        pool = Pool(kwargs['num_concurrency'], initializer=init, initargs=(l, q))
-        for i in range(kwargs['num_concurrency']):
-            pool.apply_async(play, args=(player1, player2, learning_file, kwargs['num_games']))
-        pool.close()
-        pool.join()
-        q.put(('complete',))
-    p.join()
+    if player1 == 'input' or player2 == 'input':
+        play(player1, player2, learning_file, kwargs['num_games'])
+    
+    else:
+        with benchmark():
+            # Set pool size to number of processors
+            pool = Pool(kwargs['num_concurrency'], initializer=init, initargs=(l, q))
+            for i in range(kwargs['num_concurrency']):
+                pool.apply_async(play, args=(player1, player2, learning_file, kwargs['num_games']))
+            pool.close()
+            pool.join()
+            q.put(('complete',))
+        p.join()
 
 # Entry point
 if __name__ == "__main__":
