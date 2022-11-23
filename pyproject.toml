@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "tictactoe2"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+numpy = "*"
+pytest = "*"
+jupyter = "*"
+pandas = "*"
+scipy = "*"
+scikit-learn = "*"
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.6.0"
+matplotlib = "*"
+pylint = "^2.15.6"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
