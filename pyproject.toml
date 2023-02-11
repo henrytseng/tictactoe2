@@ -15,7 +15,7 @@ scipy = "*"
 scikit-learn = "*"
 
 [tool.poetry.group.dev.dependencies]
-ipython = "^8.6.0"
+ipython = "^8.10.0"
 matplotlib = "*"
 pylint = "^2.15.6"
 
