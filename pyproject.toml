@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "tictactoe2"
+version = "0.1.0"
+description = ""
+authors = ["Henry Tseng <henry@heycanvas.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^2.2.3"
+pytest = "^8.3.4"
+jupyter = "^1.1.1"
+pandas = "^2.2.3"
+scipy = "^1.15.1"
+scikit-learn = "^1.6.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
