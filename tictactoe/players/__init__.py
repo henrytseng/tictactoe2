@@ -9,10 +9,10 @@ from sklearn.model_selection import train_test_split
 from ..game import Board
 from .activation import sigmoid, relu, relu_backward, sigmoid_backward
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("tictactoe")
+
 
 class AbstractPlayer(object):
-
     def __init__(self):
         self.marker = None
         self.board_size = None
@@ -32,13 +32,11 @@ class AbstractPlayer(object):
 
 
 class RandomPlayer(AbstractPlayer):
-
     def get_move(self, board):
         return random.choice(board.find_empty())
 
 
 class InputPlayer(AbstractPlayer):
-
     def get_move(self, board):
         print(board.debug())
         print("Enter a coordinate (i,j):")
@@ -46,14 +44,15 @@ class InputPlayer(AbstractPlayer):
         if value == "":
             print("Exiting")
             exit()
-        return list(map(lambda x:int(x), value.split(',')))
+        return list(map(lambda x: int(x), value.split(",")))
 
 
 class LearningPlayer(AbstractPlayer):
-
     def __init__(self, is_learning_while_playing=True):
         self.is_learning_while_playing = is_learning_while_playing
-        self.temp_path = environ['DATA_FOLDER'] if 'DATA_FOLDER' in environ else './data'
+        self.temp_path = (
+            environ["DATA_FOLDER"] if "DATA_FOLDER" in environ else "./data"
+        )
         self.learning_src = "{}.p".format(hex(random.getrandbits(16)))
         self.parameters = None
         self.train_x = None
@@ -62,12 +61,14 @@ class LearningPlayer(AbstractPlayer):
 
     def load(self, learning_file):
         logger.info("Loading learning file: {}".format(learning_file))
-        self.parameters = pickle.load(open(learning_file, 'rb'))
+        self.parameters = pickle.load(open(learning_file, "rb"))
 
     def save(self):
-        file_path = "{temp_path}/{filename}".format(temp_path=self.temp_path, filename=self.learning_src)
+        file_path = "{temp_path}/{filename}".format(
+            temp_path=self.temp_path, filename=self.learning_src
+        )
         logger.info("Saving learning file: {}".format(file_path))
-        pickle.dump(self.parameters, open(file_path, 'wb+'))
+        pickle.dump(self.parameters, open(file_path, "wb+"))
 
     @contextmanager
     def train(self):
@@ -75,22 +76,33 @@ class LearningPlayer(AbstractPlayer):
             round_data = [[], None]
             yield round_data
         finally:
-            winner = 1 if round_data[1] == 'X' else 0
+            winner = 1 if round_data[1] == "X" else 0
             r_x = np.array(round_data[0], dtype=np.float64).T
             r_y = np.array([[winner]] * len(round_data[0]), dtype=np.float64).T
-            self.train_x = r_x if self.train_x is None else np.concatenate((self.train_x, r_x), axis=1)
-            self.train_y = r_y if self.train_y is None else np.concatenate((self.train_y, r_y), axis=1)
+            self.train_x = (
+                r_x
+                if self.train_x is None
+                else np.concatenate((self.train_x, r_x), axis=1)
+            )
+            self.train_y = (
+                r_y
+                if self.train_y is None
+                else np.concatenate((self.train_y, r_y), axis=1)
+            )
             layers_dims = (self.train_x.shape[0], 64, 9, 3, self.train_y.shape[0])
 
             # logger.info(self.train_x.shape)
             # logger.info(self.train_y.shape)
 
-
-            self.parameters = self.L_layer_model(self.train_x, self.train_y, layers_dims,
-                                                 learning_rate = 0.075,
-                                                 num_iterations = 2000,
-                                                 print_cost=True,
-                                                 print_freq=100)
+            self.parameters = self.L_layer_model(
+                self.train_x,
+                self.train_y,
+                layers_dims,
+                learning_rate=0.075,
+                num_iterations=2000,
+                print_cost=True,
+                print_freq=100,
+            )
 
     def predict(self, board, available_spaces):
         """
@@ -106,8 +118,12 @@ class LearningPlayer(AbstractPlayer):
         # Forward propagation for each scenario
         def build_scenario(open_move):
             scenario_x = board.get_positions()
-            scenario_x[board.width * open_move[1] + open_move[0]] = 1 if self.marker == 'X' else 0
-            scenario_x[board.width * board.height + board.width * open_move[1] + open_move[0]] = 1 if self.marker == 'O' else 0
+            scenario_x[board.width * open_move[1] + open_move[0]] = (
+                1 if self.marker == "X" else 0
+            )
+            scenario_x[
+                board.width * board.height + board.width * open_move[1] + open_move[0]
+            ] = 1 if self.marker == "O" else 0
             return scenario_x
 
         # Map available spaces to scenarios
@@ -132,7 +148,7 @@ class LearningPlayer(AbstractPlayer):
             return (smallest[0], largest[0])
 
         marker_o, marker_x = find_best_move(probas[0])
-        n = marker_x if self.marker == 'X' else marker_o
+        n = marker_x if self.marker == "X" else marker_o
         # print(n)
 
         return available_spaces[n]
@@ -157,15 +173,16 @@ class LearningPlayer(AbstractPlayer):
 
         np.random.seed(1)
         parameters = {}
-        L = len(layer_dims)            # number of layers in the network
+        L = len(layer_dims)  # number of layers in the network
 
         for l in range(1, L):
-            parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) / np.sqrt(layer_dims[l-1]) #*0.01
-            parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
+            parameters["W" + str(l)] = np.random.randn(
+                layer_dims[l], layer_dims[l - 1]
+            ) / np.sqrt(layer_dims[l - 1])  # *0.01
+            parameters["b" + str(l)] = np.zeros((layer_dims[l], 1))
 
-            assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l-1]))
-            assert(parameters['b' + str(l)].shape == (layer_dims[l], 1))
-
+            assert parameters["W" + str(l)].shape == (layer_dims[l], layer_dims[l - 1])
+            assert parameters["b" + str(l)].shape == (layer_dims[l], 1)
 
         return parameters
 
@@ -185,7 +202,7 @@ class LearningPlayer(AbstractPlayer):
 
         Z = W.dot(A) + b
 
-        assert(Z.shape == (W.shape[0], A.shape[1]))
+        assert Z.shape == (W.shape[0], A.shape[1])
         cache = (A, W, b)
 
         return Z, cache
@@ -216,7 +233,7 @@ class LearningPlayer(AbstractPlayer):
             Z, linear_cache = self.linear_forward(A_prev, W, b)
             A, activation_cache = relu(Z)
 
-        assert (A.shape == (W.shape[0], A_prev.shape[1]))
+        assert A.shape == (W.shape[0], A_prev.shape[1])
         cache = (linear_cache, activation_cache)
 
         return A, cache
@@ -238,19 +255,26 @@ class LearningPlayer(AbstractPlayer):
 
         caches = []
         A = X
-        L = len(parameters) // 2                  # number of layers in the neural network
+        L = len(parameters) // 2  # number of layers in the neural network
 
         # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
         for l in range(1, L):
             A_prev = A
-            A, cache = self.linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "relu")
+            A, cache = self.linear_activation_forward(
+                A_prev,
+                parameters["W" + str(l)],
+                parameters["b" + str(l)],
+                activation="relu",
+            )
             caches.append(cache)
 
         # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
-        AL, cache = self.linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
+        AL, cache = self.linear_activation_forward(
+            A, parameters["W" + str(L)], parameters["b" + str(L)], activation="sigmoid"
+        )
         caches.append(cache)
 
-        assert(AL.shape == (1,X.shape[1]))
+        assert AL.shape == (1, X.shape[1])
 
         return AL, caches
 
@@ -269,10 +293,12 @@ class LearningPlayer(AbstractPlayer):
         m = Y.shape[1]
 
         # Compute loss from aL and y.
-        cost = (1./m) * (-np.dot(Y,np.log(AL).T) - np.dot(1-Y, np.log(1-AL).T))
+        cost = (1.0 / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
 
-        cost = np.squeeze(cost)      # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
-        assert(cost.shape == ())
+        cost = np.squeeze(
+            cost
+        )  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
+        assert cost.shape == ()
 
         return cost
 
@@ -292,13 +318,13 @@ class LearningPlayer(AbstractPlayer):
         A_prev, W, b = cache
         m = A_prev.shape[1]
 
-        dW = 1./m * np.dot(dZ,A_prev.T)
-        db = 1./m * np.sum(dZ, axis = 1, keepdims = True)
-        dA_prev = np.dot(W.T,dZ)
+        dW = 1.0 / m * np.dot(dZ, A_prev.T)
+        db = 1.0 / m * np.sum(dZ, axis=1, keepdims=True)
+        dA_prev = np.dot(W.T, dZ)
 
-        assert (dA_prev.shape == A_prev.shape)
-        assert (dW.shape == W.shape)
-        assert (db.shape == b.shape)
+        assert dA_prev.shape == A_prev.shape
+        assert dW.shape == W.shape
+        assert db.shape == b.shape
 
         return dA_prev, dW, db
 
@@ -346,21 +372,25 @@ class LearningPlayer(AbstractPlayer):
                 grads["db" + str(l)] = ...
         """
         grads = {}
-        L = len(caches) # the number of layers
+        L = len(caches)  # the number of layers
         m = AL.shape[1]
-        Y = Y.reshape(AL.shape) # after this line, Y is the same shape as AL
+        Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
         # Initializing the backpropagation
-        dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+        dAL = -(np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
         # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "AL, Y, caches". Outputs: "grads["dAL"], grads["dWL"], grads["dbL"]
-        current_cache = caches[L-1]
-        grads["dA" + str(L-1)], grads["dW" + str(L)], grads["db" + str(L)] = self.linear_activation_backward(dAL, current_cache, activation = "sigmoid")
+        current_cache = caches[L - 1]
+        grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = (
+            self.linear_activation_backward(dAL, current_cache, activation="sigmoid")
+        )
 
-        for l in reversed(range(L-1)):
+        for l in reversed(range(L - 1)):
             # lth layer: (RELU -> LINEAR) gradients.
             current_cache = caches[l]
-            dA_prev_temp, dW_temp, db_temp = self.linear_activation_backward(grads["dA" + str(l + 1)], current_cache, activation = "relu")
+            dA_prev_temp, dW_temp, db_temp = self.linear_activation_backward(
+                grads["dA" + str(l + 1)], current_cache, activation="relu"
+            )
             grads["dA" + str(l)] = dA_prev_temp
             grads["dW" + str(l + 1)] = dW_temp
             grads["db" + str(l + 1)] = db_temp
@@ -381,16 +411,29 @@ class LearningPlayer(AbstractPlayer):
                     parameters["b" + str(l)] = ...
         """
 
-        L = len(parameters) // 2 # number of layers in the neural network
+        L = len(parameters) // 2  # number of layers in the neural network
 
         # Update rule for each parameter. Use a for loop.
         for l in range(L):
-            parameters["W" + str(l+1)] = parameters["W" + str(l+1)] - learning_rate * grads["dW" + str(l+1)]
-            parameters["b" + str(l+1)] = parameters["b" + str(l+1)] - learning_rate * grads["db" + str(l+1)]
+            parameters["W" + str(l + 1)] = (
+                parameters["W" + str(l + 1)] - learning_rate * grads["dW" + str(l + 1)]
+            )
+            parameters["b" + str(l + 1)] = (
+                parameters["b" + str(l + 1)] - learning_rate * grads["db" + str(l + 1)]
+            )
 
         return parameters
 
-    def L_layer_model(self, X, Y, layers_dims, learning_rate = 0.0090, num_iterations = 2500, print_cost=False, print_freq=100):#lr was 0.009
+    def L_layer_model(
+        self,
+        X,
+        Y,
+        layers_dims,
+        learning_rate=0.0090,
+        num_iterations=2500,
+        print_cost=False,
+        print_freq=100,
+    ):  # lr was 0.009
         """
         Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -407,14 +450,13 @@ class LearningPlayer(AbstractPlayer):
         """
 
         np.random.seed(1)
-        costs = []                         # keep track of cost
+        costs = []  # keep track of cost
 
         # Parameters initialization. (≈ 1 line of code)
         parameters = self.initialize_parameters_deep(layers_dims)
 
         # Loop (gradient descent)
         for i in range(0, num_iterations):
-
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
             AL, caches = self.L_model_forward(X, parameters)
 
@@ -429,7 +471,10 @@ class LearningPlayer(AbstractPlayer):
 
             # Print the cost every 100 training example
             if print_cost and i % print_freq == 0:
-                logger.debug("iteration: %i learning_rate: %f cost: %f" %(i, learning_rate, cost))
+                logger.debug(
+                    "iteration: %i learning_rate: %f cost: %f"
+                    % (i, learning_rate, cost)
+                )
             if print_cost and i % print_freq == 0:
                 costs.append(cost)
 
@@ -445,6 +490,3 @@ class LearningPlayer(AbstractPlayer):
     def debug(self):
         logger.info(self.parameters)
         self.save()
-
-
-
