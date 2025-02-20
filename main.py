@@ -38,7 +38,7 @@ def init(l, q):
     queue = q
 
 
-def get_player(player_type, learning_file=None):
+def get_player(player_type: str = "learning", learning_file: str = None):
     player_map = {
         "random": RandomPlayer,
         "input": InputPlayer,
@@ -79,14 +79,6 @@ def store(q, l):
 
 
 def main(**kwargs):
-    # Setup logging
-    logging_level = {
-        2: logging.DEBUG,
-        1: logging.INFO,
-        0: logging.WARNING,
-    }[min(2, kwargs["verbose"])]
-    logging.basicConfig(level=logging_level)
-
     player1 = kwargs["input_x"]
     player2 = kwargs["input_o"]
     learning_file = kwargs["learning_file"]

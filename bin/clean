@@ -4,4 +4,3 @@ set -euo pipefail
 
 find . -name "*.pyc" | xargs rm
 find . -name "__pycache__" | xargs rm -rf
-pipenv --rm

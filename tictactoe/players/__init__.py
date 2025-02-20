@@ -75,6 +75,7 @@ class LearningPlayer(AbstractPlayer):
         try:
             round_data = [[], None]
             yield round_data
+
         finally:
             winner = 1 if round_data[1] == "X" else 0
             r_x = np.array(round_data[0], dtype=np.float64).T
@@ -98,8 +99,8 @@ class LearningPlayer(AbstractPlayer):
                 self.train_x,
                 self.train_y,
                 layers_dims,
-                learning_rate=0.075,
-                num_iterations=2000,
+                learning_rate=0.065,
+                num_iterations=3000,
                 print_cost=True,
                 print_freq=100,
             )

@@ -3,5 +3,5 @@
 set -euo pipefail
 
 mkdir -p ./data
-pipenv install
-pipenv run python -m compileall .
+poetry install
+poetry run python -m compileall .

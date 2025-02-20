@@ -2,5 +2,5 @@
 
 set -euo pipefail
 
-pipenv run jupyter notebook
+poetry run jupyter notebook
 

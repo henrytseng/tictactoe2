@@ -98,7 +98,7 @@ class Board(object):
 
     def __setitem__(self, key, value):
         n = key[1] * self.width + key[0]
-        if self.places[n] != None:
+        if self.places[n] is not None:
             raise Exception("Place already taken")
         self.places[n] = value
 
@@ -154,16 +154,22 @@ class Game(object):
         if self.debug_level == "info":
             logger.info("Starting {}".format(self.id))
         has_winner = False
+
+        # Allow players to retrieve board positions to learn
         with self.player_x.train() as data:
             with self.player_o.train() as data:
-                # For each turn get move from player
+                # Play game
                 for i in range(self.board.width * self.board.height):
+                    # Update state of game
                     self.update(i)
 
-                    data[0].append(self.board.get_positions())
+                    if data is not None:
+                        data[0].append(self.board.get_positions())
 
+                    # Winner
                     if self.winner is not None:
-                        data[1] = self.winner
+                        if data is not None:
+                            data[1] = self.winner
                         has_winner = True
                         break
         # Tie

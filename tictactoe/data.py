@@ -56,9 +56,7 @@ class Stats(object):
         if self.rounds_df is None:
             self.rounds_df = pd.DataFrame(columns=list(data.keys()))
 
-        self.rounds_df = pd.concat(
-            [self.rounds_df, pd.DataFrame(data)], ignore_index=True
-        )
+        self.rounds_df = pd.concat([self.rounds_df, pd.DataFrame(data)], axis=1)
 
     def complete(self, data):
         # Build data
